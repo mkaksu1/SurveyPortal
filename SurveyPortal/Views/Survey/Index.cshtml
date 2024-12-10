@@ -1,0 +1,41 @@
+﻿
+@model IEnumerable<SurveyPortal.Models.Survey>
+
+@{
+    ViewData["Title"] = "Admin Dashboard";
+}
+
+<h1>Admin Dashboard</h1>
+
+<a href="@Url.Action("Create", "Survey")" class="btn btn-primary">Yeni Anket Oluştur</a>
+
+<h2>Mevcut Anketler</h2>
+
+<table class="table">
+    <thead>
+        <tr>
+            <th>#</th>
+            <th>Başlık</th>
+            <th>Oluşturulma Tarihi</th>
+            <th>İşlemler</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var survey in Model)
+        {
+            <tr>
+                <td>@survey.Id</td>
+                <td>@survey.Title</td>
+                <td>@survey.CreatedDate.ToString("dd/MM/yyyy")</td>
+                <td>
+                    <a href="@Url.Action("Edit", "Survey", new { id = survey.Id })" class="btn btn-warning">Düzenle</a>
+                    <form method="post" action="@Url.Action("Delete", "Survey", new { id = survey.Id })" style="display:inline;">
+                        <button type="submit" class="btn btn-danger">Sil</button>
+                    </form>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>
+
+}

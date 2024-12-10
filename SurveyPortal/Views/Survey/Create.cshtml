@@ -1,0 +1,64 @@
+﻿@model SurveyPortal.Models.Survey
+
+<h1>Yeni Anket Oluştur</h1>
+
+<form asp-action="Create" method="post">
+    <div class="form-group">
+        <label for="Title">Başlık</label>
+        <input type="text" class="form-control" id="Title" name="Title" required />
+    </div>
+
+    <div class="form-group">
+        <label for="Description">Açıklama</label>
+        <textarea class="form-control" id="Description" name="Description" required></textarea>
+    </div>
+
+    <button type="submit" class="btn btn-primary">Kaydet</button>
+</form>
+
+
+<form id="surveyForm">
+    <button type="button" id="saveSurveyBtn" class="btn btn-primary">Kaydet (Ajax)</button>
+</form>
+
+<div id="message" class="mt-3"></div>
+
+
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script> <!-- JQuery Kütüphanesi -->
+<script>
+    $(document).ready(function () {
+        $('#saveSurveyBtn').on('click', function () {
+            // Form verilerini al
+            var survey = {
+                Title: $('#Title').val().trim(), // Trim ile boşlukları kaldır
+                Description: $('#Description').val().trim(), // Trim ile boşlukları kaldır
+                CreatedDate: new Date().toISOString() // Tarihi ekle
+            };
+
+            // Eğer başlık ve açıklama boşsa uyarı göster
+            if (!survey.Title || !survey.Description) {
+                $('#message').html('<div class="alert alert-danger">Başlık ve Açıklama doldurulmalıdır.</div>');
+                return; // İşlemi durdur
+            }
+
+            // AJAX ile veriyi gönder
+            $.ajax({
+                url: '/Survey/AddSurveyAjax', // Controller'daki metot
+                type: 'POST',
+                contentType: 'application/json',
+                data: JSON.stringify(survey),
+                success: function (response) {
+                    if (response.success) {
+                        $('#message').html(`<div class="alert alert-success">${response.message}</div>`);
+                        $('#surveyForm')[0].reset(); // Formu sıfırla
+                    } else {
+                        $('#message').html(`<div class="alert alert-danger">${response.message}</div>`);
+                    }
+                },
+                error: function () {
+                    $('#message').html('<div class="alert alert-danger">Bir hata oluştu!</div>');
+                }
+            });
+        });
+    });
+</script>
