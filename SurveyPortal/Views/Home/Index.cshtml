@@ -1,8 +1,173 @@
-﻿@{
-    ViewData["Title"] = "Home Page";
-}
+﻿
+@using Microsoft.AspNetCore.Components.Web
 
-<div class="text-center">
-    <h1 class="display-4">Welcome</h1>
-    <p>Learn about <a href="https://docs.microsoft.com/aspnet/core">building Web apps with ASP.NET Core</a>.</p>
-</div>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Anket Platformu</title>
+    <link rel="stylesheet" href="css/bootstrap.min.css">
+    <style>
+        .feature-icon {
+            font-size: 2rem;
+        }
+
+        .testimonial {
+            margin-bottom: 2rem;
+        }
+
+        .accordion-button::after {
+            content: none;
+        }
+    </style>
+</head>
+<body>
+    <header class="bg-primary text-white text-center py-5">
+        <h1>Kolayca Anket Oluşturun ve Sonuçları Yönetin!</h1>
+        <p>Kolay Anket Uygulaması İle Artık Düşünmeye Gerek Yok</p>
+        <NavLink href="/account/login" class="btn btn-light btn-lg">Anket Oluştur</NavLink>
+    </header>
+
+    <main class="container my-5">
+        <section class="features text-center">
+            <h2>Özelliklerimiz</h2>
+            <div class="row mt-4">
+                <div class="col-md-4">
+                    <div class="feature-icon">📱</div>
+                    <h3>Kullanıcı Dostu</h3>
+                    <p>Anketlerinizi kolayca tasarlayın ve paylaşın.</p>
+                </div>
+                <div class="col-md-4">
+                    <div class="feature-icon">⚡</div>
+                    <h3>Hızlı Sonuçlar</h3>
+                    <p>Anket sonuçlarını gerçek zamanlı görün.</p>
+                </div>
+                <div class="col-md-4">
+                    <div class="feature-icon">📊</div>
+                    <h3>Veri Analizi</h3>
+                    <p>Detaylı analiz araçlarımızla sonuçları inceleyin.</p>
+                </div>
+            </div>
+        </section>
+
+        <hr />
+
+        <section class="cta text-center my-5">
+            <h2>Hemen Başlayın</h2>
+            <p>Anketlerinizi oluşturun ve hedef kitlenize ulaşın.</p>
+            <NavLink href="/login" class="btn btn-primary btn-lg">Giriş Yap</NavLink>
+        </section>
+
+        <hr />
+
+        <section class="testimonials text-center my-5">
+            <h2>Kullanıcı Yorumları</h2>
+            <div class="row mt-4">
+                <div class="col-md-4 testimonial">
+                    <blockquote class="blockquote">
+                        <p class="mb-0">"Bu platform sayesinde anketlerimizi çok hızlı bir şekilde oluşturabiliyoruz."</p>
+                        <p class="mb-0" style="color: gray;">Ahmet K.</p>
+                    </blockquote>
+                </div>
+                <div class="col-md-4 testimonial">
+                    <blockquote class="blockquote">
+                        <p class="mb-0">"Sonuçları anında görmek harika bir özellik."</p>
+                        <p class="mb-0" style="color: gray;">Ceren T.</p>
+                    </blockquote>
+                </div>
+                <div class="col-md-4 testimonial">
+                    <blockquote class="blockquote">
+                        <p class="mb-0">"Veri analiz araçları çok kullanışlı."</p>
+                        <p class="mb-0" style="color: gray;">Ali Z.</p>
+                    </blockquote>
+                </div>
+            </div>
+        </section>
+
+        <hr />
+
+        <section class="faq text-center my-5">
+            <h2>Sıkça Sorulan Sorular</h2>
+            <div class="accordion" id="faqAccordion">
+                <div class="accordion-item">
+                    <h2 class="accordion-header" id="headingOne">
+                        <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#collapseOne" aria-expanded="true" aria-controls="collapseOne">
+                            Anket nasıl oluşturulur?
+                        </button>
+                    </h2>
+                    <div id="collapseOne" class="accordion-collapse collapse show" aria-labelledby="headingOne" data-bs-parent="#faqAccordion">
+                        <div class="accordion-body">
+                            Anket oluşturmak için "Anket Oluştur" butonuna tıklayın ve formu doldurun.
+                        </div>
+                    </div>
+                </div>
+                <div class="accordion-item">
+                    <h2 class="accordion-header" id="headingTwo">
+                        <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseTwo" aria-expanded="false" aria-controls="collapseTwo">
+                            Sonuçları nasıl görebilirim?
+                        </button>
+                    </h2>
+                    <div id="collapseTwo" class="accordion-collapse collapse" aria-labelledby="headingTwo" data-bs-parent="#faqAccordion">
+                        <div class="accordion-body">
+                            Anket sonuçlarını görmek için "Sonuçlar" sayfasına gidin.
+                        </div>
+                    </div>
+                </div>
+                <div class="accordion-item">
+                    <h2 class="accordion-header" id="headingThree">
+                        <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseThree" aria-expanded="false" aria-controls="collapseThree">
+                            Veri analiz araçları nelerdir?
+                        </button>
+                    </h2>
+                    <div id="collapseThree" class="accordion-collapse collapse" aria-labelledby="headingThree" data-bs-parent="#faqAccordion">
+                        <div class="accordion-body">
+                            Veri analiz araçlarımız, anket sonuçlarını detaylı bir şekilde incelemenizi sağlar.
+                        </div>
+                    </div>
+                </div>
+                <div class="accordion-item">
+                    <h2 class="accordion-header" id="headingFour">
+                        <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseFour" aria-expanded="false" aria-controls="collapseFour">
+                            Anket sonuçlarını nasıl paylaşabilirim?
+                        </button>
+                    </h2>
+                    <div id="collapseFour" class="accordion-collapse collapse" aria-labelledby="headingFour" data-bs-parent="#faqAccordion">
+                        <div class="accordion-body">
+                            Anket sonuçlarını paylaşmak için "Paylaş" butonuna tıklayın ve bağlantıyı kopyalayın.
+                        </div>
+                    </div>
+                </div>
+                <div class="accordion-item">
+                    <h2 class="accordion-header" id="headingFive">
+                        <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseFive" aria-expanded="false" aria-controls="collapseFive">
+                            Anketimi nasıl düzenleyebilirim?
+                        </button>
+                    </h2>
+                    <div id="collapseFive" class="accordion-collapse collapse" aria-labelledby="headingFive" data-bs-parent="#faqAccordion">
+                        <div class="accordion-body">
+                            Anketinizi düzenlemek için "Anketlerim" sayfasına gidin ve düzenlemek istediğiniz anketi seçin.
+                        </div>
+                    </div>
+                </div>
+                <div class="accordion-item">
+                    <h2 class="accordion-header" id="headingSix">
+                        <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseSix" aria-expanded="false" aria-controls="collapseSix">
+                            Anket sonuçlarını nasıl indirim?
+                        </button>
+                    </h2>
+                    <div id="collapseSix" class="accordion-collapse collapse" aria-labelledby="headingSix" data-bs-parent="#faqAccordion">
+                        <div class="accordion-body">
+                            Anket sonuçlarını indirmek için "Sonuçlar" sayfasında "İndir" butonuna tıklayın.
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+
+        <script src="js/bootstrap.bundle.min.js"></script>
+</body>
+</html>
+
+

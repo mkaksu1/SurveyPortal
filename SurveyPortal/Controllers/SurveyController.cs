@@ -1,10 +1,13 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using SurveyPortal.Models;
 using SurveyPortal.Repositories;
-using Microsoft.AspNetCore.Http;
+using System.Collections.Generic;
+using System.Linq;
 
 namespace SurveyPortal.Controllers
 {
+    [Authorize] // Sadece giriş yapmış kullanıcılar erişebilir
     public class SurveyController : Controller
     {
         private readonly IUnitOfWork _unitOfWork;
@@ -17,42 +20,14 @@ namespace SurveyPortal.Controllers
         // Anketlerin listelenmesi
         public IActionResult Index()
         {
-            // Admin kontrolü
-            if (HttpContext.Session.GetString("UserRole") != "Admin")
-            {
-                return RedirectToAction("Index", "Login"); // Admin değilse login sayfasına yönlendir
-            }
-
             var surveys = _unitOfWork.Surveys.GetAll();
             return View(surveys);
-        }
-
-        // Tek bir anketin detaylarının gösterilmesi
-        [HttpGet]
-        public IActionResult Details(int id)
-        {
-            if (HttpContext.Session.GetString("UserRole") != "Admin")
-            {
-                return RedirectToAction("Index", "Login"); // Admin değilse login sayfasına yönlendir
-            }
-
-            var survey = _unitOfWork.Surveys.GetById(id);
-            if (survey == null)
-            {
-                return NotFound();
-            }
-            return View(survey);
         }
 
         // Yeni anket oluşturma (GET)
         [HttpGet]
         public IActionResult Create()
         {
-            if (HttpContext.Session.GetString("UserRole") != "Admin")
-            {
-                return RedirectToAction("Index", "Login"); // Admin değilse login sayfasına yönlendir
-            }
-
             return View();
         }
 
@@ -60,51 +35,22 @@ namespace SurveyPortal.Controllers
         [HttpPost]
         public IActionResult Create(Survey survey)
         {
-            if (HttpContext.Session.GetString("UserRole") != "Admin")
-            {
-                return RedirectToAction("Index", "Login"); // Admin değilse login sayfasına yönlendir
-            }
-
             if (ModelState.IsValid)
             {
-                _unitOfWork.Surveys.Insert(survey);
-                _unitOfWork.Save(); // Değişiklikleri kaydet
-                return RedirectToAction("Index");
-            }
-            return View(survey);
-        }
-
-
-        //AJAX METODU İÇİN
-        [HttpPost]
-        public JsonResult AddSurveyAjax([FromBody] Survey survey)
-        {
-            if (survey.Title == null || survey.Description == null)
-            {
-                return Json(new { success = false, message = "Başlık ve açıklama boş olamaz." });
-            }
-
-            if (ModelState.IsValid)
-            {
+                // Anketi ve soruları kaydet
                 _unitOfWork.Surveys.Insert(survey);
                 _unitOfWork.Save();
-                return Json(new { success = true, message = "Anket başarıyla eklendi!" });
+
+                return RedirectToAction("Index"); // Anket listesine yönlendir
             }
 
-            return Json(new { success = false, message = "Anket eklenirken bir hata oluştu." });
+            return View(survey);
         }
-
-
 
         // Anket düzenleme (GET)
         [HttpGet]
         public IActionResult Edit(int id)
         {
-            if (HttpContext.Session.GetString("UserRole") != "Admin")
-            {
-                return RedirectToAction("Index", "Login"); // Admin değilse login sayfasına yönlendir
-            }
-
             var survey = _unitOfWork.Surveys.GetById(id);
             if (survey == null)
             {
@@ -117,17 +63,15 @@ namespace SurveyPortal.Controllers
         [HttpPost]
         public IActionResult Edit(Survey survey)
         {
-            if (HttpContext.Session.GetString("UserRole") != "Admin")
-            {
-                return RedirectToAction("Index", "Login"); // Admin değilse login sayfasına yönlendir
-            }
-
             if (ModelState.IsValid)
             {
+                // Anketi ve soruları güncelle
                 _unitOfWork.Surveys.Update(survey);
-                _unitOfWork.Save(); // Değişiklikleri kaydet
-                return RedirectToAction("Index");
+                _unitOfWork.Save();
+
+                return RedirectToAction("Index"); // Anket listesine yönlendir
             }
+
             return View(survey);
         }
 
@@ -135,11 +79,6 @@ namespace SurveyPortal.Controllers
         [HttpGet]
         public IActionResult Delete(int id)
         {
-            if (HttpContext.Session.GetString("UserRole") != "Admin")
-            {
-                return RedirectToAction("Index", "Login"); // Admin değilse login sayfasına yönlendir
-            }
-
             var survey = _unitOfWork.Surveys.GetById(id);
             if (survey == null)
             {
@@ -152,11 +91,6 @@ namespace SurveyPortal.Controllers
         [HttpPost, ActionName("Delete")]
         public IActionResult DeleteConfirmed(int id)
         {
-            if (HttpContext.Session.GetString("UserRole") != "Admin")
-            {
-                return RedirectToAction("Index", "Login"); // Admin değilse login sayfasına yönlendir
-            }
-
             var survey = _unitOfWork.Surveys.GetById(id);
             if (survey != null)
             {
@@ -164,6 +98,64 @@ namespace SurveyPortal.Controllers
                 _unitOfWork.Save(); // Değişiklikleri kaydet
             }
             return RedirectToAction("Index");
+        }
+
+        // Anket cevaplama sayfası (GET)
+        [AllowAnonymous] // Herkes erişebilir
+        [HttpGet]
+        public IActionResult Answer(int id)
+        {
+            var survey = _unitOfWork.Surveys.GetById(id);
+            if (survey == null)
+            {
+                return NotFound();
+            }
+            return View(survey);
+        }
+
+        // Anket cevaplarını kaydetme (POST)
+        [AllowAnonymous] // Herkes erişebilir
+        [HttpPost]
+        public IActionResult Answer(int surveyId, List<string> responses)
+        {
+            var survey = _unitOfWork.Surveys.GetById(surveyId);
+            if (survey == null)
+            {
+                return NotFound();
+            }
+
+            // Cevapları kaydet
+            for (int i = 0; i < survey.Questions.Count; i++)
+            {
+                var answer = new Answers
+                {
+                    Response = responses[i],
+                    QuestionId = survey.Questions.ToList()[i].Id
+                };
+                _unitOfWork.Answers.Insert(answer);
+            }
+
+            _unitOfWork.Save();
+            return RedirectToAction("ThankYou"); // Teşekkür sayfasına yönlendir
+        }
+
+        // Anket sonuçlarını görüntüleme
+        [HttpGet]
+        public IActionResult Results(int id)
+        {
+            var survey = _unitOfWork.Surveys.GetById(id);
+            if (survey == null)
+            {
+                return NotFound();
+            }
+            return View(survey);
+        }
+
+        // Teşekkür sayfası
+        [AllowAnonymous] // Herkes erişebilir
+        public IActionResult ThankYou()
+        {
+            return View();
         }
     }
 }

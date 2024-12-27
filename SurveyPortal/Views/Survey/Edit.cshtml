@@ -15,5 +15,48 @@
         <textarea class="form-control" id="Description" name="Description" required>@Model.Description</textarea>
     </div>
 
+    <div class="form-group">
+        <label>Sorular</label>
+        <div id="questions">
+            @if (Model.Questions != null && Model.Questions.Any())
+            {
+                var questionsList = Model.Questions.ToList(); // ICollection'ı List'e dönüştür
+                for (var i = 0; i < questionsList.Count; i++)
+                {
+                    <div class="question mb-2">
+                        <input type="text" class="form-control" name="Questions[@i].Text" value="@questionsList[i].Text" required />
+                    </div>
+                }
+            }
+            else
+            {
+                <div class="question mb-2">
+                    <input type="text" class="form-control" name="Questions[0].Text" placeholder="Soru metni" required />
+                </div>
+            }
+        </div>
+        <button type="button" class="btn btn-success" onclick="addQuestion()">
+            <i class="fas fa-plus"></i> Soru Ekle
+        </button>
+    </div>
+
     <button type="submit" class="btn btn-primary">Güncelle</button>
 </form>
+
+<!-- Font Awesome Ikonları -->
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css" />
+
+<script>
+    let questionIndex = @(Model.Questions != null ? Model.Questions.Count : 1);
+
+    function addQuestion() {
+        const questionsDiv = document.getElementById("questions");
+        const newQuestion = document.createElement("div");
+        newQuestion.className = "question mb-2";
+        newQuestion.innerHTML = `
+            <input type="text" class="form-control" name="Questions[${questionIndex}].Text" placeholder="Soru metni" required />
+        `;
+        questionsDiv.appendChild(newQuestion);
+        questionIndex++;
+    }
+</script>

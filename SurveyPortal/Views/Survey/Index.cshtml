@@ -1,11 +1,10 @@
-﻿
-@model IEnumerable<SurveyPortal.Models.Survey>
+﻿@model IEnumerable<SurveyPortal.Models.Survey>
 
 @{
-    ViewData["Title"] = "Admin Dashboard";
+    ViewData["Title"] = "Anket İndeksi";
 }
 
-<h1>Admin Dashboard</h1>
+<h1>Anket İndeksi</h1>
 
 <a href="@Url.Action("Create", "Survey")" class="btn btn-primary">Yeni Anket Oluştur</a>
 
@@ -32,10 +31,10 @@
                     <form method="post" action="@Url.Action("Delete", "Survey", new { id = survey.Id })" style="display:inline;">
                         <button type="submit" class="btn btn-danger">Sil</button>
                     </form>
+                    <a href="@Url.Action("Answer", "Survey", new { id = survey.Id })" class="btn btn-success">Cevapla</a>
+                    <a href="@Url.Action("Results", "Survey", new { id = survey.Id })" class="btn btn-info">Sonuçlar</a>
                 </td>
             </tr>
         }
     </tbody>
 </table>
-
-}

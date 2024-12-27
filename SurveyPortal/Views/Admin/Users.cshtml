@@ -1,0 +1,151 @@
+﻿@model List<UserRoleViewModel>
+
+@{
+    ViewData["Title"] = "Kullanıcılar";
+    Layout = ViewBag.Layout; // _AdminLayout kullanılacak
+}
+
+<div class="container-fluid">
+    <!-- Bildirim Kutusu -->
+    <div id="notification" style="display: none; position: fixed; top: 20px; right: 20px; padding: 15px; background-color: #28a745; color: white; border-radius: 5px; z-index: 1000;">
+        <span id="notificationMessage"></span>
+    </div>
+
+    <h1 class="mt-4">Kullanıcılar</h1>
+    <div class="card mb-4">
+        <div class="card-header">
+            <i class="fas fa-users mr-1"></i>
+            Kullanıcı Listesi
+        </div>
+        <div class="card-body">
+            <table class="table table-bordered" id="usersTable">
+                <thead>
+                    <tr>
+                        <th>Kullanıcı Adı</th>
+                        <th>Roller</th>
+                        <th>İşlemler</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var user in Model)
+                    {
+                        <tr id="user-@user.UserId">
+                            <td>@user.UserName</td>
+                            <td>
+                                @foreach (var role in user.Roles)
+                                {
+                                    <span class="badge bg-primary text-white">@role</span>
+                                }
+                            </td>
+                            <td>
+                                <form method="post" asp-action="ChangeUserRole" onsubmit="submitForm(event)">
+                                    <input type="hidden" name="userId" value="@user.UserId" />
+                                    <select name="role" class="form-select">
+                                        <option value="Admin">Admin</option>
+                                        <option value="User">Kullanıcı</option>
+                                    </select>
+                                    <button type="submit" class="btn btn-primary btn-sm mt-2">Rolü Değiştir</button>
+                                </form>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <!-- SignalR'ı CDN üzerinden yükle -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/microsoft-signalr/7.0.5/signalr.min.js"></script>
+    <script>
+        // SignalR bağlantısını kur
+        const connection = new signalR.HubConnectionBuilder()
+            .withUrl("/userHub")
+            .build();
+
+        // Bildirim kutusunu gösteren fonksiyon
+        function showNotification(message, duration = 2000) {
+            const notification = document.getElementById("notification");
+            const notificationMessage = document.getElementById("notificationMessage");
+
+            notificationMessage.textContent = message; // Mesajı ayarla
+            notification.style.display = "block"; // Kutusu göster
+
+            // Belirli bir süre sonra kutusu gizle
+            setTimeout(() => {
+                notification.style.display = "none";
+            }, duration);
+        }
+
+        // "ReceiveUserRoleChange" event'ini dinle
+        connection.on("ReceiveUserRoleChange", (userId, newRole) => {
+            console.log("Rol değişikliği alındı:", userId, newRole);
+            const userRow = document.getElementById(`user-${userId}`);
+            if (userRow) {
+                const roleCell = userRow.querySelector("td:nth-child(2)");
+                roleCell.innerHTML = `<span class="badge bg-primary text-white">${newRole}</span>`;
+            }
+
+            // Bildirim göster
+            showNotification("Rol değiştirildi!");
+        });
+
+        // "ReceiveNewUser" event'ini dinle
+        connection.on("ReceiveNewUser", (userId, userName) => {
+            console.log("Yeni kullanıcı alındı:", userId, userName);
+            const usersTable = document.querySelector("#usersTable tbody");
+
+            // Yeni satır oluştur
+            const newRow = document.createElement("tr");
+            newRow.id = `user-${userId}`;
+            newRow.innerHTML = `
+                <td>${userName}</td>
+                <td>
+                    <span class="badge bg-primary text-white">User</span>
+                </td>
+                <td>
+                    <form method="post" asp-action="ChangeUserRole" onsubmit="submitForm(event)">
+                        <input type="hidden" name="userId" value="${userId}" />
+                        <select name="role" class="form-select">
+                            <option value="Admin">Admin</option>
+                            <option value="User">Kullanıcı</option>
+                        </select>
+                        <button type="submit" class="btn btn-primary btn-sm mt-2">Rolü Değiştir</button>
+                    </form>
+                </td>
+            `;
+
+            // Tabloya yeni satırı ekle
+            usersTable.appendChild(newRow);
+
+            // Bildirim göster
+            showNotification("Yeni üye eklendi!");
+        });
+
+        // SignalR bağlantısını başlat
+        connection.start()
+            .then(() => console.log("SignalR bağlantısı başarılı."))
+            .catch(err => console.error("SignalR bağlantısı başarısız:", err.toString()));
+
+        // Formun sayfayı yenilemesini engelle ve AJAX ile gönder
+        function submitForm(event) {
+            event.preventDefault(); // Formun sayfayı yenilemesini engelle
+            const form = event.target;
+            const formData = new FormData(form);
+
+            fetch(form.action, {
+                method: 'POST',
+                body: formData
+            }).then(response => {
+                if (response.ok) {
+                    console.log("Rol değişikliği başarılı.");
+                } else {
+                    console.error("Rol değişikliği başarısız.");
+                }
+            }).catch(error => {
+                console.error("Hata:", error);
+            });
+        }
+    </script>
+}

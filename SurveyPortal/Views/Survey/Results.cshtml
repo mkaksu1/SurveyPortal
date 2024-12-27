@@ -1,0 +1,14 @@
+﻿@model SurveyPortal.Models.Survey
+
+<h1>@Model.Title - Sonuçlar</h1>
+
+@foreach (var question in Model.Questions)
+{
+    <h3>@question.Text</h3>
+    <ul>
+        @foreach (var answer in question.Answers)
+        {
+            <li>@answer.Response</li>
+        }
+    </ul>
+}
